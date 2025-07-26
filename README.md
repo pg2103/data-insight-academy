@@ -1,73 +1,43 @@
-# Welcome to your Lovable project
+# 📊 StockAI – AI-Powered Market Insight & Risk Management
 
-## Project info
+StockAI is an AI-powered platform that delivers real-time stock and crypto insights through sentiment analysis, predictive analytics, and intelligent risk management.  
+**Note:** This project is currently under active development. Frontend is in progress.
 
-**URL**: https://lovable.dev/projects/0c23e0fd-1029-4119-9891-f39c2bda86b7
+---
 
-## How can I edit this code?
+## 🚀 Objective
 
-There are several ways of editing your application.
+To simplify stock and crypto market analysis for users by providing smart, AI-driven tools for predictions, trend analysis, and risk alerts.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0c23e0fd-1029-4119-9891-f39c2bda86b7) and start prompting.
+## ✅ Key Features (Planned)
 
-Changes made via Lovable will be committed automatically to this repo.
+- 📈 Real-time Stock & Crypto Market Data
+- 💬 News & Social Media Sentiment Analysis
+- 🔮 Price Prediction using AI/ML models
+- ⚠️ Risk Detection and Smart Alerts
+- 🔍 AI-based Search & Filtering
+- 📊 Visual Dashboards & Charts
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧰 Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Frontend:** React.js, Tailwind CSS *(in progress)*
+- **Backend:** Node.js, Express.js *(planned)*
+- **Database:** MongoDB *(planned)*
+- **AI/ML:** Python (pandas, scikit-learn, NLP for sentiment) *(planned)*
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📌 Project Status
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- [x] Project Setup
+- [x] Initial Design Planning
+- [ ] Frontend UI Development (In Progress)
+- [ ] Backend Integration
+- [ ] AI/ML Model Integration
+- [ ] Testing and Optimization
 
-# Step 3: Install the necessary dependencies.
-npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0c23e0fd-1029-4119-9891-f39c2bda86b7) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
