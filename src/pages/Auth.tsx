@@ -16,8 +16,9 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(false);
   
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, resendConfirmation } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,14 +32,20 @@ const Auth = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setShowResend(false);
 
-    const { error } = await signUp(email, password, fullName);
+    const { data, error } = await signUp(email, password, fullName);
     
     if (error) {
       setError(error.message);
     } else {
-      setSuccess('Check your email for a confirmation link!');
-      setEmail('');
+      // Check if user needs email confirmation
+      if (data?.user && !data.user.email_confirmed_at) {
+        setSuccess('Account created! Please check your email and click the confirmation link to sign in.');
+        setShowResend(true);
+      } else {
+        setSuccess('Account created successfully!');
+      }
       setPassword('');
       setFullName('');
     }
@@ -49,11 +56,35 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
-    const { error } = await signIn(email, password);
+    const { data, error } = await signIn(email, password);
     
     if (error) {
       setError(error.message);
+      // Show resend option if it's likely an email confirmation issue
+      if (error.message.includes('email not confirmed')) {
+        setShowResend(true);
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    const { error } = await resendConfirmation(email);
+    
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess('Confirmation email sent! Please check your email.');
     }
     setLoading(false);
   };
@@ -99,6 +130,25 @@ const Auth = () => {
                 <Alert className="mb-4 border-success text-success">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
+              {showResend && (
+                <Alert className="mb-4 border-info text-info">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="space-y-2">
+                    <p>Didn't receive the email? Check your spam folder or</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResendConfirmation}
+                      disabled={loading}
+                      className="w-full"
+                    >
+                      {loading ? 'Sending...' : 'Resend Confirmation Email'}
+                    </Button>
+                  </AlertDescription>
                 </Alert>
               )}
 
