@@ -7,23 +7,12 @@ import {
   Newspaper, 
   GraduationCap, 
   Menu, 
-  X, 
-  User,
-  LogOut
+  X
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
 
   const navItems = [
     { path: "/", label: "Home", icon: BarChart3 },
@@ -70,30 +59,8 @@ const Navigation = () => {
             })}
           </div>
 
-          {/* User Profile & Mobile Menu Button */}
-          <div className="flex items-center space-x-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden md:flex">
-                  <User className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem className="cursor-default">
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user?.email}</span>
-                    <span className="text-xs text-muted-foreground">Signed in</span>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="text-destructive">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
+          <div className="flex items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -127,19 +94,6 @@ const Navigation = () => {
                   </Link>
                 );
               })}
-              <div className="pt-2 border-t border-border space-y-2">
-                <div className="px-4 py-2 text-sm text-muted-foreground">
-                  {user?.email}
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={signOut}
-                >
-                  <LogOut className="w-5 h-5 mr-3" />
-                  Sign out
-                </Button>
-              </div>
             </div>
           </div>
         )}
