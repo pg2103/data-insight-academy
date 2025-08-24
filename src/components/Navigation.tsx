@@ -19,7 +19,10 @@ const Navigation = () => {
     { path: "/sentiment", label: "Sentiment Analysis", icon: Brain },
     { path: "/news", label: "News", icon: Newspaper },
     { path: "/learn", label: "Learn", icon: GraduationCap },
+<<<<<<< HEAD
     { path: "/stocks", label: "Stocks", icon: BarChart3 }
+=======
+>>>>>>> 252ae00adbd361bac7c91a3cc19485b7c15f3412
   ];
 
   const isActive = (path: string) => location.pathname === path;

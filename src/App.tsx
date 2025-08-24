@@ -9,8 +9,11 @@ import SentimentAnalysis from "./pages/SentimentAnalysis";
 import News from "./pages/News";
 import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
+<<<<<<< HEAD
 import StockList from "./pages/StockList";
 import StockDetails from "./pages/StockDetails";
+=======
+>>>>>>> 252ae00adbd361bac7c91a3cc19485b7c15f3412
 
 const queryClient = new QueryClient();
 
@@ -27,8 +30,11 @@ const App = () => (
             <Route path="/sentiment" element={<SentimentAnalysis />} />
             <Route path="/news" element={<News />} />
             <Route path="/learn" element={<Learn />} />
+<<<<<<< HEAD
             <Route path="/stocks" element={<StockList />} />
             <Route path="/stocks/:slug" element={<StockDetails />} />
+=======
+>>>>>>> 252ae00adbd361bac7c91a3cc19485b7c15f3412
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
