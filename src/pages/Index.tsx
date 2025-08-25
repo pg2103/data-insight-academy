@@ -283,12 +283,13 @@ const Index = () => {
                   Start Free Analysis
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
                 <Link to="/learn">
-                  <GraduationCap className="w-5 h-5 mr-2" />
+                  <Brain className="w-5 h-5 mr-2" />
                   Explore Courses
                 </Link>
               </Button>
+             
             </div>
           </div>
         </div>

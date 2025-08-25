@@ -9,6 +9,7 @@ import {
   Menu, 
   X
 } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,8 +40,8 @@ const Navigation = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* Centered Nav Items */}
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -60,12 +61,23 @@ const Navigation = () => {
             })}
           </div>
 
+          {/* Auth Controls on Right */}
+          <div className="hidden md:flex items-center">
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button className="ml-2">Sign In</Button>
+              </SignInButton>
+            </SignedOut>
+          </div>
+
           {/* Mobile Menu Button */}
-          <div className="flex items-center">
+          <div className="flex items-center md:hidden">
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -75,26 +87,36 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4">
-            <div className="flex flex-col space-y-2">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`px-4 py-3 rounded-lg flex items-center space-x-3 transition-all duration-300 ${
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground shadow-elegant"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
+          <div className="md:hidden pb-4 space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`px-4 py-3 rounded-lg flex items-center space-x-3 transition-all duration-300 ${
+                    isActive(item.path)
+                      ? "bg-primary text-primary-foreground shadow-elegant"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+
+            {/* Clerk Auth Controls (mobile) */}
+            <div className="mt-2 px-4">
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button className="w-full mt-2">Sign In</Button>
+                </SignInButton>
+              </SignedOut>
             </div>
           </div>
         )}
