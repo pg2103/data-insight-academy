@@ -24,7 +24,7 @@ const Index = () => {
       title: "AI Sentiment Analysis",
       description: "Advanced AI algorithms analyze market sentiment from news, social media, and financial reports in real-time.",
       color: "bg-gradient-primary",
-      link: "/sentiment"
+      link: null
     },
     {
       icon: Newspaper,
@@ -96,7 +96,7 @@ const Index = () => {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="text-lg px-8" asChild>
-                  <Link to="/sentiment">
+                  <Link to="/news">
                     <Zap className="w-5 h-5 mr-2" />
                     Get Started Free
                   </Link>
@@ -284,10 +284,7 @@ const Index = () => {
     className="text-lg px-8 py-6 sm:py-3"  
     asChild
   >
-    <Link to="/sentiment">
-      <Brain className="w-5 h-5 mr-2" />
-      Start Free Analysis
-    </Link>
+   
   </Button>
 
   {/* Explore Courses Button */}

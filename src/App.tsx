@@ -7,7 +7,7 @@ import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn } from "@clerk/cle
 
 import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
-import SentimentAnalysis from "./pages/SentimentAnalysis";
+// import SentimentAnalysis from "./pages/SentimentAnalysis";
 import News from "./pages/News";
 import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
@@ -31,19 +31,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
 
               {/* Protected Routes */}
-              <Route
-                path="/sentiment"
-                element={
-                  <>
-                    <SignedIn>
-                      <SentimentAnalysis />
-                    </SignedIn>
-                    <SignedOut>
-                      <RedirectToSignIn />
-                    </SignedOut>
-                  </>
-                }
-              />
+             
 
               <Route
                 path="/news"

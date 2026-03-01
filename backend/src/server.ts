@@ -122,7 +122,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((error: Error & { status?: number }, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Unhandled error:', error);
   
   // Don't send stack trace in production
