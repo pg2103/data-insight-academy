@@ -77,19 +77,7 @@ export const validateStockData = [
   handleValidationErrors
 ];
 
-export const validateProfileUpdate = [
-  body('full_name')
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1, max: 100 })
-    .withMessage('Full name must be between 1 and 100 characters'),
-  body('avatar_url')
-    .optional()
-    .isURL()
-    .withMessage('Avatar URL must be a valid URL'),
-  handleValidationErrors
-];
+
 
 export const validateWatchlist = [
   body('symbol')

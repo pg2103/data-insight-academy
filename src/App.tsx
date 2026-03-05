@@ -7,7 +7,6 @@ import { ClerkProvider, SignedIn, SignedOut, RedirectToSignIn } from "@clerk/cle
 
 import Navigation from "./components/Navigation";
 import Index from "./pages/Index";
-// import SentimentAnalysis from "./pages/SentimentAnalysis";
 import News from "./pages/News";
 import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";

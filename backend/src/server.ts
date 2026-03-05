@@ -5,11 +5,8 @@ import morgan from 'morgan';
 import compression from 'compression';
 import dotenv from 'dotenv';
 import { generalLimiter } from './middleware/rateLimiting';
-import { db } from './config/database';
 
-// Import routes
-import authRoutes from './routes/auth';
-import sentimentRoutes from './routes/sentiment';
+// ✅ Keep only the routes you actually use
 import newsRoutes from './routes/news';
 import stocksRoutes from './routes/stocks';
 
@@ -19,174 +16,143 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:"],
-    },
-  },
-  crossOriginEmbedderPolicy: false,
-}));
+/* ================================
+   Security Middleware
+================================ */
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com'] // Replace with your actual frontend domain
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+/* ================================
+   CORS
+================================ */
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://your-frontend-domain.com'] // change later
+        : [
+            'http://localhost:3000',
+            'http://localhost:5173',
+            'http://localhost:8080',
+          ],
+    credentials: true,
+  })
+);
 
-// Body parsing middleware
+/* ================================
+   Body Parsers
+================================ */
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// Compression middleware
+/* ================================
+   Performance + Logging
+================================ */
 app.use(compression());
-
-// Logging middleware
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// Rate limiting
+/* ================================
+   Rate Limiting
+================================ */
 app.use(generalLimiter);
 
-// Health check endpoint
-app.get('/health', async (req, res) => {
-  try {
-    const dbConnected = await db.testConnection();
-    
-    res.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      services: {
-        database: dbConnected ? 'connected' : 'disconnected',
-        api: 'running'
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+/* ================================
+   Health Check (FIXED — no DB)
+================================ */
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      api: 'running',
+    },
+  });
 });
 
-// API info endpoint
+/* ================================
+   API Info
+================================ */
 app.get('/api', (req, res) => {
   res.json({
     name: 'Financial Sentiment Analysis API',
     version: '1.0.0',
-    description: 'Backend API for financial sentiment analysis and market data',
     endpoints: {
-      auth: '/api/auth',
-      sentiment: '/api/sentiment',
       news: '/api/news',
-      stocks: '/api/stocks'
+      stocks: '/api/stocks',
     },
-    documentation: 'https://github.com/your-repo/api-docs', // Replace with actual docs URL
     status: 'operational',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/sentiment', sentimentRoutes);
+/* ================================
+   API Routes (ONLY WHAT YOU USE)
+================================ */
 app.use('/api/news', newsRoutes);
 app.use('/api/stocks', stocksRoutes);
 
-// Catch-all for unknown routes
+/* ================================
+   404 Handler
+================================ */
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
-    message: `The route ${req.originalUrl} does not exist on this server`,
-    availableRoutes: [
-      '/api/auth',
-      '/api/sentiment',
-      '/api/news',
-      '/api/stocks',
-      '/health',
-      '/api'
-    ]
+    path: req.originalUrl,
   });
 });
 
-// Global error handler
-app.use((error: Error & { status?: number }, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', error);
-  
-  // Don't send stack trace in production
-  const isDevelopment = process.env.NODE_ENV !== 'production';
-  
-  res.status(error.status || 500).json({
-    error: error.message || 'Internal server error',
-    ...(isDevelopment && { stack: error.stack }),
-    timestamp: new Date().toISOString(),
-    path: req.path,
-    method: req.method
-  });
-});
+/* ================================
+   Global Error Handler
+================================ */
+app.use(
+  (
+    error: Error & { status?: number },
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error('Unhandled error:', error);
 
-// Graceful shutdown handler
-const gracefulShutdown = (signal: string) => {
-  console.log(`\n${signal} received. Starting graceful shutdown...`);
-  
-  server.close(() => {
-    console.log('HTTP server closed.');
-    
-    // Close database connections, cleanup resources, etc.
-    process.exit(0);
-  });
-  
-  // Force close after 10 seconds
-  setTimeout(() => {
-    console.error('Could not close connections in time, forcefully shutting down');
-    process.exit(1);
-  }, 10000);
-};
+    const isDev = process.env.NODE_ENV !== 'production';
 
-// Start server
+    res.status(error.status || 500).json({
+      error: error.message || 'Internal server error',
+      ...(isDev && { stack: error.stack }),
+      timestamp: new Date().toISOString(),
+    });
+  }
+);
+
+/* ================================
+   Start Server
+================================ */
 const server = app.listen(PORT, () => {
   console.log(`
-🚀 Financial Sentiment Analysis API Server
+🚀 Financial API Server Running
 🌐 Environment: ${process.env.NODE_ENV || 'development'}
 🎯 Port: ${PORT}
 📍 Base URL: http://localhost:${PORT}
-📚 API Documentation: http://localhost:${PORT}/api
-🏥 Health Check: http://localhost:${PORT}/health
 
 Available Endpoints:
-- Auth: http://localhost:${PORT}/api/auth
-- Sentiment: http://localhost:${PORT}/api/sentiment
-- News: http://localhost:${PORT}/api/news
+- News:   http://localhost:${PORT}/api/news
 - Stocks: http://localhost:${PORT}/api/stocks
-
-Server started at ${new Date().toISOString()}
+- Health: http://localhost:${PORT}/health
   `);
 });
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
+/* ================================
+   Graceful Shutdown
+================================ */
+const gracefulShutdown = (signal: string) => {
+  console.log(`${signal} received. Shutting down...`);
+  server.close(() => process.exit(0));
+};
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-// Handle shutdown signals
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
