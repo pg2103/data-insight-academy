@@ -1,15 +1,15 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { isLoaded, isSignedIn } = useUser();
 
-  if (loading) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  if (!isSignedIn) {
     return <Navigate to="/auth" replace />;
   }
 
