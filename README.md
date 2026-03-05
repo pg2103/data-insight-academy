@@ -369,20 +369,3 @@ HuggingFace symlink warning on Windows
 This occurs if Developer Mode is disabled. It does not affect functionality.
 
 ---
-
-# 🔮 Future Improvements
-
-Possible future extensions:
-
-* Real-time market APIs
-* News aggregation from multiple sources
-* AI-based trend detection
-* Automated scheduled scraping
-* Database storage instead of JSON
-* Dockerized deployment
-* Cloud deployment pipeline
-
----
-
-
-These things make projects look **10× more professional to recruiters.**
