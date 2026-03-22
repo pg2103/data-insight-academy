@@ -6,33 +6,25 @@ import compression from 'compression';
 import dotenv from 'dotenv';
 import { generalLimiter } from './middleware/rateLimiting';
 
-// ✅ Keep only the routes you actually use
-import newsRoutes from './routes/news';
+// import newsRoutes from './routes/news';
 import stocksRoutes from './routes/stocks';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = Number(process.env.PORT) || 8000;
 
-/* ================================
-   Security Middleware
-================================ */
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
   })
 );
 
-/* ================================
-   CORS
-================================ */
 app.use(
   cors({
     origin:
       process.env.NODE_ENV === 'production'
-        ? ['https://your-frontend-domain.com'] // change later
+        ? ['https://your-frontend-domain.com']
         : [
             'http://localhost:3000',
             'http://localhost:5173',
@@ -42,27 +34,23 @@ app.use(
   })
 );
 
-/* ================================
-   Body Parsers
-================================ */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ================================
-   Performance + Logging
-================================ */
 app.use(compression());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-/* ================================
-   Rate Limiting
-================================ */
 app.use(generalLimiter);
 
-/* ================================
-   Health Check (FIXED — no DB)
-================================ */
-app.get('/health', (req, res) => {
+app.get('/', (_req, res) => {
+  res.json({
+    message: 'Backend server is running',
+    port: PORT,
+    status: 'ok',
+  });
+});
+
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -74,10 +62,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-/* ================================
-   API Info
-================================ */
-app.get('/api', (req, res) => {
+app.get('/api', (_req, res) => {
   res.json({
     name: 'Financial Sentiment Analysis API',
     version: '1.0.0',
@@ -90,15 +75,9 @@ app.get('/api', (req, res) => {
   });
 });
 
-/* ================================
-   API Routes (ONLY WHAT YOU USE)
-================================ */
-app.use('/api/news', newsRoutes);
+// app.use('/api/news', newsRoutes);
 app.use('/api/stocks', stocksRoutes);
 
-/* ================================
-   404 Handler
-================================ */
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -106,15 +85,12 @@ app.use('*', (req, res) => {
   });
 });
 
-/* ================================
-   Global Error Handler
-================================ */
 app.use(
   (
     error: Error & { status?: number },
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction
   ) => {
     console.error('Unhandled error:', error);
 
@@ -128,26 +104,13 @@ app.use(
   }
 );
 
-/* ================================
-   Start Server
-================================ */
 const server = app.listen(PORT, () => {
-  console.log(`
-🚀 Financial API Server Running
-🌐 Environment: ${process.env.NODE_ENV || 'development'}
-🎯 Port: ${PORT}
-📍 Base URL: http://localhost:${PORT}
-
-Available Endpoints:
-- News:   http://localhost:${PORT}/api/news
-- Stocks: http://localhost:${PORT}/api/stocks
-- Health: http://localhost:${PORT}/health
-  `);
+  console.log(`🚀 Financial API Server Running on http://localhost:${PORT}`);
+  console.log(`📍 Health: http://localhost:${PORT}/health`);
+  console.log(`📍 API: http://localhost:${PORT}/api`);
+  console.log(`📍 Stocks: http://localhost:${PORT}/api/stocks`);
 });
 
-/* ================================
-   Graceful Shutdown
-================================ */
 const gracefulShutdown = (signal: string) => {
   console.log(`${signal} received. Shutting down...`);
   server.close(() => process.exit(0));
