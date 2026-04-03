@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import compression from 'compression';
 import dotenv from 'dotenv';
 import { generalLimiter } from './middleware/rateLimiting';
+import { exec } from 'child_process';
+import path from 'path';
 
 // import newsRoutes from './routes/news';
 import stocksRoutes from './routes/stocks';
@@ -14,6 +16,9 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 8000;
 
+// ===============================
+// 🛡️ MIDDLEWARE
+// ===============================
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
@@ -42,6 +47,9 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.use(generalLimiter);
 
+// ===============================
+// 📡 ROUTES
+// ===============================
 app.get('/', (_req, res) => {
   res.json({
     message: 'Backend server is running',
@@ -56,9 +64,6 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    services: {
-      api: 'running',
-    },
   });
 });
 
@@ -78,6 +83,9 @@ app.get('/api', (_req, res) => {
 // app.use('/api/news', newsRoutes);
 app.use('/api/stocks', stocksRoutes);
 
+// ===============================
+// ❌ 404 HANDLER
+// ===============================
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
@@ -85,6 +93,9 @@ app.use('*', (req, res) => {
   });
 });
 
+// ===============================
+// ⚠️ ERROR HANDLER
+// ===============================
 app.use(
   (
     error: Error & { status?: number },
@@ -104,13 +115,58 @@ app.use(
   }
 );
 
+// ===============================
+// 🔥 PIPELINE FUNCTION
+// ===============================
+const runPipeline = () => {
+  const backendPath = path.resolve(__dirname, '..');
+
+  // 👉 Use venv python (VERY IMPORTANT)
+  const pythonPath = path.join(
+    backendPath,
+    'venv',
+    'Scripts',
+    'python.exe'
+  );
+
+  console.log('⚡ Running news pipeline...');
+
+  exec(`"${pythonPath}" run_pipeline.py`, { cwd: backendPath }, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`❌ Pipeline Error: ${error.message}`);
+      return;
+    }
+
+    if (stderr) {
+      console.warn(`⚠️ Pipeline Warning: ${stderr}`);
+    }
+
+    console.log(`✅ Pipeline Output:\n${stdout}`);
+  });
+};
+
+// ===============================
+// 🚀 SERVER START
+// ===============================
 const server = app.listen(PORT, () => {
   console.log(`🚀 Financial API Server Running on http://localhost:${PORT}`);
   console.log(`📍 Health: http://localhost:${PORT}/health`);
   console.log(`📍 API: http://localhost:${PORT}/api`);
   console.log(`📍 Stocks: http://localhost:${PORT}/api/stocks`);
+
+  // 🔥 Run once at startup
+  runPipeline();
+
+  // 🔁 Auto refresh every 30 minutes
+  setInterval(() => {
+    console.log('🔄 Refreshing news data...');
+    runPipeline();
+  }, 1000 * 60 * 30);
 });
 
+// ===============================
+// 🛑 GRACEFUL SHUTDOWN
+// ===============================
 const gracefulShutdown = (signal: string) => {
   console.log(`${signal} received. Shutting down...`);
   server.close(() => process.exit(0));

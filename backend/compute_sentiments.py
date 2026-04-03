@@ -16,18 +16,18 @@ BATCH_SIZE = 8  # increase to 16 if you have good CPU/GPU
 def choose_text(article: dict) -> str:
     """
     Choose the best available text for sentiment.
-    Priority:
-    1. full_text (best signal)
-    2. synopsis
-    3. headline
     """
     text = (
         article.get("full_text")
+        or article.get("description") # Added to match your JSON
         or article.get("synopsis")
         or article.get("headline")
+        or article.get("title")       # Added to match your JSON
         or ""
     )
-    return text.strip()[:MAX_TEXT_LEN]
+    # 512 chars is too short (FinBERT takes 512 *tokens*). 
+    # Let's pass more text and let the pipeline handle the truncation.
+    return text.strip()[:2000]
 
 
 def normalize_label(label: str) -> str:
@@ -50,6 +50,8 @@ def analyze_sentiments():
         "sentiment-analysis",
         model="ProsusAI/finbert",
         device=device,
+        truncation=True, 
+        max_length=512   
     )
 
     backend_dir = os.path.dirname(__file__)

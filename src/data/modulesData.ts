@@ -164,7 +164,7 @@ export const modules: Module[] = [
     lessons: 18,
     icon: BookOpen,
     topics: ["Financial Models", "DCF", "Excel"],
-    pdfUrl: "/assets/pdfs/Module_13_Integrated_Financial_Modelling.pdf",
+    pdfUrl: "/assets/pdfs/Module_12_Integrated_Financial_Modelling.pdf",
   },
   {
     id: 13,
@@ -176,6 +176,6 @@ export const modules: Module[] = [
     lessons: 9,
     icon: PenIcon,
     topics: ["Health Insurance", "Coverage", "Claims"],
-    pdfUrl: "/assets/pdfs/Module_14_Personal_Finance_Insurance.pdf",
+    pdfUrl: "/assets/pdfs/Module_13_Personal_Finance_Insurance.pdf",
   },
 ];
