@@ -1,10 +1,11 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime,UTC
 from transformers import pipeline
 from tqdm import tqdm
 import torch
-
+import sys
+print("SENTIMENT PYTHON:", sys.executable)
 
 # ================================
 # Config
@@ -112,7 +113,7 @@ def analyze_sentiments():
     # Final JSON
     # ================================
     final_data = {
-        "updated_at": datetime.utcnow().isoformat() + "Z",
+        "updated_at": datetime.now(UTC).isoformat(),
         "articles": enriched_articles,
     }
 

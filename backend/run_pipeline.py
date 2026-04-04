@@ -1,12 +1,20 @@
 import subprocess
-import sys
+import os
 
-python_exec = sys.executable
+# 🔥 FORCE venv python (correct way)
+BASE_DIR = os.path.dirname(__file__)
 
-print("🚀 Step 1: Scraping raw data...")
-subprocess.run([python_exec, "scrapper.py"])
+python_exec = os.path.join(BASE_DIR, "venv", "Scripts", "python.exe")
 
-print("🤖 Step 3: Sentiment analysis...")
-subprocess.run([python_exec, "compute_sentiments.py"])
+print("🚀 Running full pipeline...")
+print("Using Python:", python_exec)
 
-print("✅ Pipeline completed.")
+# STEP 1: Scraper
+print("📡 Step 1: Scraping...")
+subprocess.run([python_exec, "scrapper.py"], check=True)
+
+# STEP 2: Sentiment
+print("🤖 Step 2: Sentiment...")
+subprocess.run([python_exec, "compute_sentiments.py"], check=True)
+
+print("✅ Pipeline completed")

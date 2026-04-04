@@ -1,64 +1,107 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cureq
+import sys
 
-def fetch_rss_feed(url):
+print("SCRAPER PYTHON:", sys.executable)
+
+
+# =============================
+# FETCH PAGE
+# =============================
+def fetch_page(url):
     headers = {"User-Agent": "Mozilla/5.0"}
-    res = cureq.get(url, headers=headers, impersonate="chrome110", timeout=15)
-    res.raise_for_status()
-    return res.content
 
-def scrape_news_rss(rss_url, limit=15):
-    print("📡 Fetching articles from RSS Feed...")
-    raw_xml = fetch_rss_feed(rss_url)
-    
-    # html.parser works perfectly for extracting basic XML tags
-    soup = BeautifulSoup(raw_xml, "html.parser")
-    items = soup.find_all("item")
-    
+    res = cureq.get(
+        url,
+        headers=headers,
+        impersonate="chrome110",
+        timeout=15
+    )
+
+    res.raise_for_status()
+    return res.text
+
+
+# =============================
+# SCRAPER
+# =============================
+def scrape_moneycontrol(total_limit=50):
+    print("🚀 Scraping Moneycontrol multiple pages...")
+
+    base_url = "https://www.moneycontrol.com/news/business/page-{}/"
+
     results = []
-    print(f"Found {len(items)} items in feed. Processing top {limit}...")
-    
-    for i, item in enumerate(items[:limit], 1):
-        title = item.title.text if item.title else "No Title"
-        link = item.link.text if item.link else ""
-        
-        # RSS feeds provide a highly detailed summary out of the box
-        synopsis = item.description.text if item.description else ""
-        
-        # Clean up any leftover HTML tags inside the summary
-        clean_synopsis = BeautifulSoup(synopsis, "html.parser").get_text(strip=True)
-        
-        print(f"  [{i}/{limit}] Processed: {title[:50]}...")
-        
-        results.append({
-            "headline": title,
-            "synopsis": clean_synopsis,
-            "link": link,
-            "source": "moneycontrol.com",
-            "published_at": datetime.utcnow().isoformat() + "Z",
-            "full_text": clean_synopsis # Using synopsis as full text avoids secondary blocks!
-        })
-        
+    page = 1
+
+    while len(results) < total_limit:
+        url = base_url.format(page)
+        print(f"\n📄 Fetching Page {page}: {url}")
+
+        html = fetch_page(url)
+        soup = BeautifulSoup(html, "html.parser")
+
+        articles = soup.select("li.clearfix")
+
+        if not articles:
+            print("⚠️ No more articles found, stopping...")
+            break
+
+        for article in articles:
+            if len(results) >= total_limit:
+                break
+
+            a_tag = article.find("a")
+            p_tag = article.find("p")
+
+            if not a_tag:
+                continue
+
+            title = a_tag.get_text(strip=True)
+            link = a_tag.get("href")
+
+            # filter junk
+            if not link or link == "#" or "login" in title.lower():
+                continue
+
+            summary = p_tag.get_text(strip=True) if p_tag else ""
+
+            print(f"[{len(results)+1}] {title[:60]}...")
+
+            results.append({
+                "headline": title,
+                "synopsis": summary,
+                "link": link,
+                "source": "Moneycontrol",
+                "published_at": datetime.now(UTC).isoformat(),
+                "full_text": summary
+            })
+
+        page += 1
+
+    print(f"\n✅ Total scraped: {len(results)} articles")
     return results
 
+# =============================
+# SAVE
+# =============================
 def write_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(data, f, indent=2)
 
+
+# =============================
+# MAIN
+# =============================
 if __name__ == "__main__":
-    print("🚀 Starting news scraping via RSS...")
-    
-    # The official Moneycontrol Business RSS Feed
-    RSS_URL = "https://www.moneycontrol.com/rss/business.xml"
-    
-    scraped_data = scrape_news_rss(RSS_URL, limit=15)
+    data = scrape_moneycontrol(total_limit=50)
 
-    if scraped_data:
-        output_path = os.path.join(os.path.dirname(__file__), "raw_news.json")
-        write_json(output_path, scraped_data)
-        print(f"\n✅ Successfully scraped {len(scraped_data)} articles")
+    if data:
+        path = os.path.join(os.path.dirname(__file__), "raw_news.json")
+        write_json(path, data)
+
+        print(f"\n✅ Saved {len(data)} latest articles")
     else:
-        print("\n⚠️ No data was scraped.")
+        print("❌ No data scraped")
