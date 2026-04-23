@@ -157,15 +157,41 @@ Frontend → Backend API → Angel One → Live Data → Frontend UI
 .
 ├── backend
 │   ├── src
-│   ├── scrapper.py
-│   ├── compute_sentiments.py
-│   ├── run_pipeline.py
-│   └── venv
-├── src
-│   ├── components
-│   ├── data/news.json
+│   │   ├── server.ts            # Main backend server (runs pipeline + APIs)
+│   │   ├── routes
+│   │   │   ├── news.ts          # News endpoints
+│   │   │   └── stocks.ts        # Stock APIs (Angel One)
+│   │   ├── services
+│   │   │   ├── angelOneService.ts  # Market data logic
+│   │   │   └── stockService.ts     # Stock utilities + processing
+│   │   ├── middleware           # Rate limiting, validation
+│   │   └── config
+│   │       └── stockUniverse.ts # Stock groups (Nifty, Sensex, etc.)
+│   │
+│   ├── scrapper.py             # News scraping (Moneycontrol)
+│   ├── compute_sentiments.py   # FinBERT sentiment analysis
+│   ├── run_pipeline.py         # Runs full pipeline (scrape + sentiment)
+│   ├── requirements.txt        # Python dependencies
+│   └── venv                    # Python virtual environment
+│
+├── src (Frontend)
 │   ├── pages
-│   └── routes
+│   │   ├── News.tsx            # News UI (reads JSON)
+│   │   ├── StockList.tsx       # Market overview
+│   │   ├── StockDetails.tsx    # Stock detail + charts
+│   │   └── Learn.tsx           # Learning modules
+│   │
+│   ├── data
+│   │   ├── news.json           # Processed news (pipeline output)
+│   │   ├── stockData.ts        # API integration (frontend)
+│   │   └── modulesData.ts      # Learning content
+│   │
+│   ├── components             # Reusable UI components
+│   └── hooks                  # Custom React hooks
+│
+├── public/assets              # Static files (videos, images, PDFs)
+├── package.json               # Frontend config
+└── README.md
 ```
 
 ---
